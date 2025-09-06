@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽選DB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #result {
+            font-size: 1.2em;
+            font-weight: bold;
+            white-space: pre-line;
+            margin-bottom: 20px;
+        }
+
+        #database-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #database-table th,
+        #database-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #database-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        #database-table td {
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        #database-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        #database-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        #categories {
+            margin-bottom: 20px;
+        }
+
+        .category-item {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #category-toggle {
+            cursor: pointer;
+            color: #007BFF;
+            text-decoration: underline;
+            font-size: 1.1em;
+        }
+
+        #category-list {
+            margin-top: 10px;
+            display: none;
+            /* デフォルトで折りたたみ */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        <a>抽選DB</a>
+    </h1>
+
+    <div id="database">
+        <table id="database-table">
+            <thead>
+                <tr>
+                    <th style="width: 15%;">注文番号</th>
+                    <th style="width: 35%;">名前</th>
+                    <th style="width: 10%;">価格</th>
+                    <th style="width: 20%;">カテゴリー</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+
+        fetch('menu.jsonl')
+            .then(response => response.text())
+            .then(text => {
+                let data = [];
+                data = text
+                    .split('\n')
+                    .filter(line => line.trim() !== '')
+                    .map(line => JSON.parse(line));
+                console.log('menu.jsonl 読み込み成功:', data.length, '件');
+
+                const databaseTableBody = document.querySelector("#database-table tbody");
+                databaseTableBody.innerHTML = "";
+                data.forEach(entry => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                <td>${entry.id}</td>
+                <td>${entry.name}</td>
+                <td>${entry.price}</td>
+                <td>${entry.category}</td>
+                    `;
+                    databaseTableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('JSONLの読み込みに失敗しました:', error);
+            });
+
+
+    </script>
+</body>
+
+</html>
