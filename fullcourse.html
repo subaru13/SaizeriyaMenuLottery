@@ -24,41 +24,35 @@
             cursor: pointer;
         }
 
-        #result {
-            font-size: 1.2em;
-            font-weight: bold;
-            white-space: pre-line;
-            margin-bottom: 20px;
-        }
 
-        #history-table {
+        #result-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
 
-        #history-table th,
-        #history-table td {
+        #result-table th,
+        #result-table td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
         }
 
-        #history-table th {
+        #result-table th {
             background-color: #f4f4f4;
             font-weight: bold;
         }
 
-        #history-table td {
+        #result-table td {
             font-size: 14px;
             word-break: break-word;
         }
 
-        #history-table tr:nth-child(even) {
+        #result-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
 
-        #history-table tr:hover {
+        #result-table tr:hover {
             background-color: #f1f1f1;
         }
 
@@ -88,7 +82,7 @@
 
 <body>
     <h1>
-        <a>サイゼリヤメニュー抽選</a>
+        <a>フルコース抽選</a>
         <!--改定バージョン-->
         <a>(</a>
         <a href="https://book.saizeriya.co.jp/menu2506_j2/book" target="_blank">
@@ -97,7 +91,7 @@
         <a>)</a>
     </h1>
     <h1>
-        <a href="fullcourse.html" target="_blank">フルコース抽選</a>
+        <a href="index.html" target="_blank">単品抽選</a>
     </h1>
     <h1>
         <a href="disp_data.html" target="_blank">データベース表示</a>
@@ -113,13 +107,12 @@
     </div>
 
     <button id="draw-button">抽選する</button>
-    <p id="result">結果: まだ抽選していません。</p>
 
-    <div id="history">
-        <h2>抽選履歴</h2>
-        <table id="history-table">
+    <div id="result">
+        <table id="result-table">
             <thead>
                 <tr>
+                    <th style="width: 20%;">カテゴリー</th>
                     <th style="width: 20%;">注文番号</th>
                     <th style="width: 45%;">名前</th>
                     <th style="width: 10%;">価格</th>
@@ -148,8 +141,6 @@
                 console.error('JSONLの読み込みに失敗しました:', error);
             });
 
-        // 抽選履歴を保存する配列
-        const history = [];
 
         function initializeCategories() {
             const categoryList = document.getElementById("category-list");
@@ -208,34 +199,42 @@
         }
 
         function drawRandom() {
+            // 抽選履歴を保存する配列
+            const result = [];
+            let totalPrice = 0;
             const selectedCategories = Array.from(document.querySelectorAll('#categories input:checked')).map(input => input.value);
-            const filteredData = data.filter(item => selectedCategories.includes(item.category));
 
-            if (filteredData.length === 0) {
-                return;
-            }
+            selectedCategories.forEach(category => {
+                const categoryItems = data.filter(item => item.category === category);
+                if (categoryItems.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * categoryItems.length);
+                    result.push(categoryItems[randomIndex]);
+                    totalPrice += parseInt(categoryItems[randomIndex].price, 10);
+                }
+            });
 
-            const randomIndex = Math.floor(Math.random() * filteredData.length);
-            const result = filteredData[randomIndex];
-            const resultText = `注文番号 : ${result.id}\n名前 : ${result.name}\n価格 : ${result.price}`;
-            document.getElementById("result").innerText = resultText;
-
-            history.unshift(result);
-            updateHistory();
+            updateResult(result, totalPrice);
         }
 
-        function updateHistory() {
-            const historyTableBody = document.querySelector("#history-table tbody");
-            historyTableBody.innerHTML = "";
-            history.forEach(entry => {
+        function updateResult(result, totalPrice) {
+            const resultTableBody = document.querySelector("#result-table tbody");
+            resultTableBody.innerHTML = "";
+            result.forEach(entry => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
+                <td>${entry.category}</td>
                 <td>${entry.id}</td>
                 <td>${entry.name}</td>
                 <td>${entry.price}</td>
                     `;
-                historyTableBody.appendChild(row);
+                resultTableBody.appendChild(row);
             });
+            const totalRow = document.createElement("tr");
+            totalRow.innerHTML = `
+                <td colspan="3">合計</td>
+                <td>${totalPrice}</td>
+            `;
+            resultTableBody.appendChild(totalRow);
         }
 
         document.addEventListener("DOMContentLoaded", () => {
