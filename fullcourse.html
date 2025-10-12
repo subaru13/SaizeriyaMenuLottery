@@ -168,11 +168,11 @@
                 category: checkbox.value,
                 checked: checkbox.checked,
             }));
-            localStorage.setItem("checkboxState", JSON.stringify(state));
+            localStorage.setItem("checkboxState2", JSON.stringify(state));
         }
 
         function restoreCheckboxState() {
-            const savedState = localStorage.getItem("checkboxState");
+            const savedState = localStorage.getItem("checkboxState2");
             if (savedState) {
                 const state = JSON.parse(savedState);
                 const checkboxes = Array.from(document.querySelectorAll("#category-list input[type='checkbox']"));
